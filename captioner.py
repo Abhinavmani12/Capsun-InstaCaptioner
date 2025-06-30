@@ -13,7 +13,7 @@ You are a creative social media expert specialized in Instagram captions and has
 Given the following image description:
 '{description}'
 
-Write a captivating, classy, and elegant Instagram caption.  
+Write a captivating, classy, and elegant Instagram caption.
 Make it engaging, emotionally appealing, and suitable for current social media trends.
 
 Also generate 5 highly relevant, popular, and niche hashtags.
@@ -23,7 +23,6 @@ Format the response as:
 Caption: <your polished caption>
 Hashtags: #hashtag1 #hashtag2 #hashtag3 #hashtag4 #hashtag5
 """,
-
     "witty": """
 You are a witty social media guru who crafts funny, clever Instagram captions.
 
@@ -39,7 +38,6 @@ Format the response as:
 Caption: <your witty caption>
 Hashtags: #hashtag1 #hashtag2 #hashtag3 #hashtag4 #hashtag5
 """,
-
     "poetic": """
 You are a poet who writes beautiful, poetic Instagram captions.
 
@@ -57,25 +55,33 @@ Hashtags: #hashtag1 #hashtag2 #hashtag3 #hashtag4 #hashtag5
 """
 }
 
+
 def generate_caption_with_hashtags(description, style):
     prompt_template = STYLE_PROMPTS.get(style.lower(), STYLE_PROMPTS["classy"])
     prompt = prompt_template.format(description=description)
 
-    fallback_caption = "Your photo looks amazing! #instagood #photo"
-    fallback_hashtags = "#instagood #photo #nofilter"
+    fallback_caption = "Your photo looks amazing! ✨"
+    fallback_hashtags = "#instagood #vibes #nofilter #aesthetic #snap"
 
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
+            messages=[
+                {"role": "system", "content": "You're an expert in writing social media captions."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.9
         )
+
         full_text = response.choices[0].message.content.strip()
 
-        caption = full_text.split("Caption:")[1].split("Hashtags:")[0].strip()
-        hashtags = full_text.split("Hashtags:")[1].strip()
-
-        return caption, hashtags
+        if "Caption:" in full_text and "Hashtags:" in full_text:
+            caption = full_text.split("Caption:")[1].split("Hashtags:")[0].strip()
+            hashtags = full_text.split("Hashtags:")[1].strip()
+            return caption, hashtags
+        else:
+            raise ValueError("Malformed response format")
 
     except Exception as e:
-        print("OpenAI API call failed:", e)
+        print("❌ OpenAI API call failed:", e)
         return fallback_caption, fallback_hashtags

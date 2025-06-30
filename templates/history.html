@@ -3,123 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Caption History - InstaCaptioner</title>
+  <title>InstaCaptioner - History</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
-      padding: 20px;
-      transition: background-color 0.3s, color 0.3s;
+      padding: 30px;
     }
-
-    .dark-mode {
-      background-color: #121212;
-      color: #eee;
+    .caption-card {
+      margin-bottom: 20px;
     }
-
-    .dark-mode table {
-      color: #eee;
+    .caption-text {
+      white-space: pre-wrap; /* preserve new lines */
     }
-
-    .dark-mode a.btn-secondary {
-      background-color: #444;
-      border-color: #555;
-      color: #eee;
-    }
-
-    .table-responsive {
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    .copy-btn {
-      font-size: 0.9rem;
-      margin-left: 8px;
-      cursor: pointer;
-    }
-
-    .dark-toggle {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      z-index: 1000;
-    }
-
-    img.history-thumb {
-      max-width: 100px;
-      height: auto;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.2);
+    .hashtags {
+      color: #007bff;
     }
   </style>
 </head>
-<body class="bg-light">
-
-  <div class="dark-toggle form-check form-switch">
-    <input class="form-check-input" type="checkbox" id="darkModeSwitch" />
-    <label class="form-check-label" for="darkModeSwitch">🌙 Dark Mode</label>
-  </div>
-
+<body>
   <div class="container">
-    <h2 class="mb-4">📜 Caption History</h2>
-    <a href="/" class="btn btn-secondary mb-4">← Back to Home</a>
+    <h1 class="mb-4 text-center">📜 Caption History</h1>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary mb-4">⬅️ Back to Home</a>
 
-    <div class="table-responsive">
-      <table class="table table-striped table-bordered align-middle">
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Caption</th>
-            <th>Hashtags</th>
-            <th>Style</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for post in history %}
-          <tr>
-            <td><img src="{{ url_for('static', filename=post.image_filename) }}" alt="Uploaded Image" class="history-thumb" /></td>
-
-            <td>
-              {{ post.caption }}
-              <button class="btn btn-sm btn-outline-primary copy-btn" onclick="copyText(`{{ post.caption|escapejs }}`)" title="Copy caption">📋</button>
-            </td>
-
-            <td>
-              {{ post.hashtags }}
-              <button class="btn btn-sm btn-outline-primary copy-btn" onclick="copyText(`{{ post.hashtags|escapejs }}`)" title="Copy hashtags">📋</button>
-            </td>
-
-            <td>{{ post.style|capitalize }}</td>
-            <td>{{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-          </tr>
-          {% else %}
-          <tr><td colspan="5" class="text-center">No history found.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    {% if history %}
+      {% for item in history %}
+        <div class="card caption-card shadow-sm">
+          <div class="row g-0 align-items-center">
+            <div class="col-md-3 text-center p-3">
+              <img src="{{ url_for('static', filename=item.image_filename) }}" alt="Image" class="img-fluid rounded" style="max-height:150px;"/>
+            </div>
+            <div class="col-md-9">
+              <div class="card-body">
+                <h5 class="card-title">Style: <em>{{ item.style.capitalize() }}</em></h5>
+                <p class="card-text caption-text">{{ item.caption }}</p>
+                {% if item.hashtags %}
+                <p class="hashtags">{{ item.hashtags }}</p>
+                {% endif %}
+                <p class="text-muted" style="font-size: 0.9rem;">
+                  Created at: {{ item.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} UTC
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-center">No caption history found yet.</p>
+    {% endif %}
   </div>
-
-  <script>
-    const darkToggle = document.getElementById('darkModeSwitch');
-    darkToggle.addEventListener('change', () => {
-      document.body.classList.toggle('dark-mode');
-    });
-
-    function copyText(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Copied to clipboard!");
-      }).catch(() => {
-        alert("Failed to copy.");
-      });
-    }
-  </script>
 </body>
 </html>

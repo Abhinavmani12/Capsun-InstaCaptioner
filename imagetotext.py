@@ -2,27 +2,32 @@ import os
 import requests
 from PIL import Image
 
-HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY")  # Optional for real API use
+HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY")  # Optional if public access works
+
+HF_API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base"
 
 def generate_description(image_path):
-    if HF_API_KEY:
+    try:
         with open(image_path, "rb") as f:
             image_bytes = f.read()
 
-        response = requests.post(
-            "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base",
-            headers={"Authorization": f"Bearer {HF_API_KEY}"},
-            data=image_bytes,
-        )
+        headers = {"Authorization": f"Bearer {HF_API_KEY}"} if HF_API_KEY else {}
+        response = requests.post(HF_API_URL, headers=headers, data=image_bytes)
 
-        print(f"Response status: {response.status_code}")
-        print("Response text:", response.text)  # Add this line to see the problem
+        print(f"[HuggingFace] Status Code: {response.status_code}")
+        print(f"[HuggingFace] Raw Response: {response.text[:200]}")  # Log first 200 chars
 
-        try:
-            result = response.json()
+        # Parse response safely
+        result = response.json()
+
+        if isinstance(result, list) and "generated_text" in result[0]:
             return result[0]["generated_text"]
-        except Exception as e:
-            print("Failed to parse Hugging Face response:", e)
-            return "A wonderful scene captured beautifully."
-    else:
-        return "A beautiful moment captured with style."
+        elif "error" in result:
+            print("❌ HuggingFace Error:", result["error"])
+            return "A beautifully captured image, rich in emotion."
+        else:
+            return "An eye-catching visual scene."
+
+    except Exception as e:
+        print("❌ HuggingFace Captioning Failed:", e)
+        return "A picture worth a thousand words."

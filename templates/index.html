@@ -53,8 +53,6 @@
     <img src="{{ url_for('static', filename='logo.png') }}" alt="InstaCaptioner Logo" style="height: 60px;" />
     <h1>InstaCaptioner</h1>
   </div>
-  
-  
 
   <div class="dark-toggle form-check form-switch">
     <input class="form-check-input" type="checkbox" id="darkModeSwitch" />
@@ -64,9 +62,9 @@
   <div class="container text-center">
     <div class="brand-logo mb-4">📸 InstaCaptioner</div>
 
-    <form method="POST" enctype="multipart/form-data" class="mb-4">
+    <form method="POST" enctype="multipart/form-data" class="mb-4" novalidate>
       <div class="mb-3">
-        <input type="file" name="image" class="form-control" required />
+        <input type="file" name="image" class="form-control" accept=".png,.jpg,.jpeg" required />
       </div>
       <div class="mb-3">
         <select name="style" class="form-select" required>
@@ -81,7 +79,7 @@
     {% if caption %}
     <div class="mb-4">
       <h4>Uploaded Image:</h4>
-      <img src="{{ image_url }}" class="img-fluid rounded shadow" style="max-height: 300px;" />
+      <img src="{{ image_url }}" class="img-fluid rounded shadow" style="max-height: 300px;" alt="Uploaded Image" />
     </div>
 
     <div class="mb-3">
@@ -97,8 +95,8 @@
     {% endif %}
 
     <div class="mb-3">
-      <button class="btn btn-outline-success me-2" onclick="shareWhatsApp()">📤 Share via WhatsApp</button>
-      <button class="btn btn-outline-secondary" onclick="copyAll()">📋 Copy Caption + Hashtags</button>
+      <button class="btn btn-outline-success me-2" type="button" onclick="shareWhatsApp()">📤 Share via WhatsApp</button>
+      <button class="btn btn-outline-secondary" type="button" onclick="copyAll()">📋 Copy Caption + Hashtags</button>
     </div>
 
     <form action="/download" method="POST" class="d-inline">
@@ -121,23 +119,27 @@
   </div>
 
   <script>
+    // Dark mode toggle
     const toggle = document.getElementById('darkModeSwitch');
     toggle.addEventListener('change', () => {
       document.body.classList.toggle('dark-mode');
     });
 
+    // Safely handle hashtags as string for JS
+    const hashtags = {{ (hashtags or "") | tojson | safe }};
+    
+    // Share caption + hashtags on WhatsApp
     function shareWhatsApp() {
-      const text = document.getElementById("captionText").value;
-      const hash = `{{ hashtags | escapejs }}`;
-      const fullText = encodeURIComponent(text + "\n\n" + hash);
+      const text = document.getElementById("captionText").value || "";
+      const fullText = encodeURIComponent(text + "\n\n" + hashtags);
       const url = "https://wa.me/?text=" + fullText;
       window.open(url, '_blank');
     }
 
+    // Copy caption + hashtags to clipboard
     function copyAll() {
-      const text = document.getElementById("captionText").value;
-      const hash = `{{ hashtags }}`;
-      const fullText = text + "\n\n" + hash;
+      const text = document.getElementById("captionText").value || "";
+      const fullText = text + "\n\n" + hashtags;
       navigator.clipboard.writeText(fullText).then(() => alert("Copied caption and hashtags!"));
     }
   </script>

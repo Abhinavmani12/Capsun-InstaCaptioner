@@ -1,7 +1,39 @@
-.env
-captions.db
+# Python cache and compiled files
 __pycache__/
-*.pyc
-uploads/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Flask instance folder and logs
 instance/
 *.log
+
+# SQLite database files
+*.db
+*.sqlite3
+captions.db
+
+# Ignore all files in uploads/ except .keep
+uploads/*
+!uploads/.keep
+
+# Ignore all files in static/ except .keep
+static/*
+!static/.keep
+
+# Environment variables file
+.env
+
+# VS Code and editor files
+.vscode/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Build / packaging files
+build/
+dist/
+*.egg-info/

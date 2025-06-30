@@ -1,1 +1,2 @@
-touch static/.keep uploads/.keep
+touch uploads/.keep
+touch static/.keep
