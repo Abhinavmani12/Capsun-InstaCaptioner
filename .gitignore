@@ -1,0 +1,6 @@
+captions.db
+__pycache__/
+*.pyc
+uploads/
+instance/
+*.log

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InstaCaptioner</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      padding: 30px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .brand-logo {
+      font-family: 'Pacifico', cursive;
+      font-size: 2.5rem;
+      color: #ff5e57;
+    }
+
+    .dark-mode {
+      background-color: #121212 !important;
+      color: #f1f1f1;
+    }
+
+    .dark-mode textarea,
+    .dark-mode input,
+    .dark-mode select {
+      background-color: #2a2a2a !important;
+      color: white !important;
+    }
+
+    #captionText {
+      width: 100%;
+      height: 150px;
+      resize: none;
+    }
+
+    .dark-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <div class="dark-toggle form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="darkModeSwitch" />
+    <label class="form-check-label" for="darkModeSwitch">🌙 Dark Mode</label>
+  </div>
+
+  <div class="container text-center">
+    <div class="brand-logo mb-4">📸 InstaCaptioner</div>
+
+    <form method="POST" enctype="multipart/form-data" class="mb-4">
+      <div class="mb-3">
+        <input type="file" name="image" class="form-control" required />
+      </div>
+      <div class="mb-3">
+        <select name="style" class="form-select">
+          <option value="classic">Classic</option>
+          <option value="witty">Witty</option>
+          <option value="emotional">Emotional</option>
+          <option value="poetic">Poetic</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Generate Caption</button>
+    </form>
+
+    {% if caption %}
+    <div class="mb-4">
+      <h4>Uploaded Image:</h4>
+      <img src="{{ url_for('static', filename='uploaded.jpg') }}" class="img-fluid rounded shadow" style="max-height: 300px;" />
+    </div>
+
+    <div class="mb-3">
+      <h4>Your Caption:</h4>
+      <textarea id="captionText" class="form-control" readonly>{{ caption }}</textarea>
+    </div>
+
+    {% if hashtags %}
+    <div class="mb-4">
+      <h4>Suggested Hashtags:</h4>
+      <textarea class="form-control" rows="2" readonly>{{ hashtags }}</textarea>
+    </div>
+    {% endif %}
+
+    <div class="mb-3">
+      <button class="btn btn-outline-success me-2" onclick="shareWhatsApp()">📤 Share via WhatsApp</button>
+      <button class="btn btn-outline-secondary" onclick="copyAll()">📋 Copy Caption + Hashtags</button>
+    </div>
+
+    <form action="/download" method="POST">
+      <input type="hidden" name="caption" value="{{ caption }}">
+      <input type="hidden" name="hashtags" value="{{ hashtags }}">
+      <button class="btn btn-outline-info mt-2">📥 Download Image with Caption</button>
+    </form>
+
+    <form action="/schedule" method="POST">
+      <input type="hidden" name="caption" value="{{ caption }}">
+      <input type="hidden" name="hashtags" value="{{ hashtags }}">
+      <button class="btn btn-outline-dark mt-2">📅 Schedule Post to Instagram</button>
+    </form>
+
+    {% endif %}
+
+    <a href="/history" class="btn btn-link mt-4">📜 View History</a>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('darkModeSwitch');
+    toggle.addEventListener('change', () => {
+      document.body.classList.toggle('dark-mode');
+    });
+
+    function shareWhatsApp() {
+      const text = document.getElementById("captionText").value;
+      const hash = `{{ hashtags }}`;
+      const fullText = encodeURIComponent(text + "\n\n" + hash);
+      const url = "https://wa.me/?text=" + fullText;
+      window.open(url, '_blank');
+    }
+
+    function copyAll() {
+      const text = document.getElementById("captionText").value;
+      const hash = `{{ hashtags }}`;
+      const fullText = text + "\n\n" + hash;
+      navigator.clipboard.writeText(fullText).then(() => alert("Copied caption and hashtags!"));
+    }
+  </script>
+</body>
+</html>

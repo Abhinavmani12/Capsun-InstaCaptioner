@@ -1,0 +1,8 @@
+flask
+flask_sqlalchemy
+openai
+torch
+torchvision
+transformers
+pillow
+requests
