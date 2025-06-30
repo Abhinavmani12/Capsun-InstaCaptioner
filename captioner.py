@@ -16,21 +16,28 @@ Caption: <your caption here>
 Hashtags: #hashtag1 #hashtag2 ...
 """
 
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
+    fallback_caption = "Your photo looks amazing! #instagood #photo"
+    fallback_hashtags = "#instagood #photo #nofilter"
 
-    full_text = response.choices[0].message.content.strip()
-
-    # Simple parsing
     try:
-        caption = full_text.split("Caption:")[1].split("Hashtags:")[0].strip()
-        hashtags = full_text.split("Hashtags:")[1].strip()
-    except Exception:
-        caption = full_text
-        hashtags = "#photo #insta"
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}]
+        )
 
-    return caption, hashtags
+        full_text = response.choices[0].message.content.strip()
+
+        # Try to parse caption and hashtags
+        try:
+            caption = full_text.split("Caption:")[1].split("Hashtags:")[0].strip()
+            hashtags = full_text.split("Hashtags:")[1].strip()
+        except Exception:
+            caption = full_text
+            hashtags = fallback_hashtags
+
+        return caption, hashtags
+
+    except Exception as e:
+        print("OpenAI API call failed:", e)
+        # Return fallback if any error occurs (including rate limits)
+        return fallback_caption, fallback_hashtags
