@@ -8,6 +8,8 @@ from datetime import datetime
 import requests
 import io
 from PIL import Image, ImageDraw, ImageFont
+from dotenv import load_dotenv
+load_dotenv()
 
 UPLOAD_FOLDER = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
