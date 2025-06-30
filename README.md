@@ -1,4 +1,4 @@
-# 📸 InstaCaptioner
+# 📸 Capshun - InstaCaptioner
 
 **InstaCaptioner** is an AI-powered web app that generates professional Instagram captions and relevant hashtags based on the content of your uploaded images.
 
