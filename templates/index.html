@@ -49,6 +49,12 @@
   </style>
 </head>
 <body class="bg-light">
+  <div class="text-center mb-4">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="InstaCaptioner Logo" style="height: 60px;" />
+    <h1>InstaCaptioner</h1>
+  </div>
+  
+  
 
   <div class="dark-toggle form-check form-switch">
     <input class="form-check-input" type="checkbox" id="darkModeSwitch" />
@@ -63,11 +69,10 @@
         <input type="file" name="image" class="form-control" required />
       </div>
       <div class="mb-3">
-        <select name="style" class="form-select">
-          <option value="classic">Classic</option>
-          <option value="witty">Witty</option>
-          <option value="emotional">Emotional</option>
-          <option value="poetic">Poetic</option>
+        <select name="style" class="form-select" required>
+          <option value="classy" {% if style == 'classy' %}selected{% endif %}>Classy & Elegant</option>
+          <option value="witty" {% if style == 'witty' %}selected{% endif %}>Witty & Humorous</option>
+          <option value="poetic" {% if style == 'poetic' %}selected{% endif %}>Poetic & Lyrical</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary">Generate Caption</button>
@@ -76,7 +81,7 @@
     {% if caption %}
     <div class="mb-4">
       <h4>Uploaded Image:</h4>
-      <img src="{{ url_for('static', filename='uploaded.jpg') }}" class="img-fluid rounded shadow" style="max-height: 300px;" />
+      <img src="{{ image_url }}" class="img-fluid rounded shadow" style="max-height: 300px;" />
     </div>
 
     <div class="mb-3">
@@ -96,15 +101,17 @@
       <button class="btn btn-outline-secondary" onclick="copyAll()">📋 Copy Caption + Hashtags</button>
     </div>
 
-    <form action="/download" method="POST">
+    <form action="/download" method="POST" class="d-inline">
       <input type="hidden" name="caption" value="{{ caption }}">
       <input type="hidden" name="hashtags" value="{{ hashtags }}">
+      <input type="hidden" name="filename" value="{{ image_url.split('/')[-1] }}">
       <button class="btn btn-outline-info mt-2">📥 Download Image with Caption</button>
     </form>
 
-    <form action="/schedule" method="POST">
+    <form action="/schedule" method="POST" class="d-inline ms-2">
       <input type="hidden" name="caption" value="{{ caption }}">
       <input type="hidden" name="hashtags" value="{{ hashtags }}">
+      <input type="hidden" name="filename" value="{{ image_url.split('/')[-1] }}">
       <button class="btn btn-outline-dark mt-2">📅 Schedule Post to Instagram</button>
     </form>
 
@@ -121,7 +128,7 @@
 
     function shareWhatsApp() {
       const text = document.getElementById("captionText").value;
-      const hash = `{{ hashtags }}`;
+      const hash = `{{ hashtags | escapejs }}`;
       const fullText = encodeURIComponent(text + "\n\n" + hash);
       const url = "https://wa.me/?text=" + fullText;
       window.open(url, '_blank');
