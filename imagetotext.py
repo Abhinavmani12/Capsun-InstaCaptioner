@@ -6,7 +6,6 @@ HF_API_KEY = os.getenv("HUGGINGFACE_API_KEY")  # Optional for real API use
 
 def generate_description(image_path):
     if HF_API_KEY:
-        # Use Hugging Face Inference API for BLIP model
         with open(image_path, "rb") as f:
             image_bytes = f.read()
 
@@ -16,11 +15,14 @@ def generate_description(image_path):
             data=image_bytes,
         )
 
-        result = response.json()
+        print(f"Response status: {response.status_code}")
+        print("Response text:", response.text)  # Add this line to see the problem
+
         try:
+            result = response.json()
             return result[0]["generated_text"]
-        except Exception:
+        except Exception as e:
+            print("Failed to parse Hugging Face response:", e)
             return "A wonderful scene captured beautifully."
     else:
-        # No HF key? Use simple fallback description
         return "A beautiful moment captured with style."

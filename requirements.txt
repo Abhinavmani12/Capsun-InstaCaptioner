@@ -6,3 +6,4 @@ torchvision
 transformers
 pillow
 requests
+python-dotenv
